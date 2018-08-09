@@ -8,4 +8,4 @@ var FollowSchema=Schema({
     user:{type:Schema.ObjectId,ref:'User'}
 });
 
-module.export=mongoose.model('Follow',FollowSchema);
+module.exports=mongoose.model('Follow',FollowSchema);

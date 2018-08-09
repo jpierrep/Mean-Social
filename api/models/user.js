@@ -13,4 +13,4 @@ var UserSchema=Schema({
     image:String,
 });
 
-module.export=mongoose.model('User',UserSchema);
+module.exports=mongoose.model('User',UserSchema);
