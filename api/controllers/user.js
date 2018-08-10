@@ -46,16 +46,15 @@ function home (req,res){
                 ]}).exec((err,users)=>{
                     if(err) return res.status(500).send({message:'Error en la peticion de usuarios'});
                    //console.log(users +'tamaño'+users.length);
-                    if(users && users.length>=1)  return res.status(200).send({message:'El usuario que intenta registrar ya existe'});  
-                
-                });
-
-                //trae opciones null como el costo del cifrado,iterar el hash para fortificar la contraseña
+                    if(users && users.length>=1){
+                        return res.status(200).send({message:'El usuario que intenta registrar ya existe'});  
+                    } else{
+                                        //trae opciones null como el costo del cifrado,iterar el hash para fortificar la contraseña
                 //por defecto viene con un coste de 10
                 
-                bcrypt.hash(params.password,null,null,(err,hash)=>{
-                    user.password=hash;
-                    user.save((err,userStored)=>{
+                         bcrypt.hash(params.password,null,null,(err,hash)=>{
+                        user.password=hash;
+                        user.save((err,userStored)=>{
                         if(err) return res.status(500).send({message:'Error al guardar el usuario'});
                         //si se creo el usuario 
                         if(userStored){
@@ -65,16 +64,48 @@ function home (req,res){
                         }
                     }); 
                 });
+                        
+                    }
+                
+                });
+
+
 
             }else{
                 //los datos son necesarios
                 res.status(200).send({message:'Envia todos los campos necesario'});
             }
-            
+
+         }
+
+         //registrar nuevos usuarios
+         function loginUser(req,res){
+             var params=req.body;
+             var email=params.email;
+             var password=params.password;
+        User.findOne({email:email},(err,user)=>{
+            if(err) return res.status(500).send({message:'Error en la peticion'});
+            if(user){
+                bcrypt.compare(password,user.password,(err,check)=>{
+                    if(check){
+                        //devolver datos de usuario
+                      return  res.status(200).send({user});
+
+                    }else{
+                      return  res.status(404).send({message:'El usuario no se ha podido logear'});
+
+                    }
+                    
+                });
+            }else{
+                res.status(404).send({message:'El usuario no existe'});
+            }
+        })    
+
 
          }
     
          
          module.exports={
-             home,pruebas,saveUser
+             home,pruebas,saveUser,loginUser
          }
