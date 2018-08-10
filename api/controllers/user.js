@@ -2,6 +2,7 @@
 var bcrypt=require('bcrypt-nodejs');
 
 var User= require('../models/user');
+var jwt=require('../services/jwt');
 
 function home (req,res){
     res.status(200).send({
@@ -88,8 +89,20 @@ function home (req,res){
             if(user){
                 bcrypt.compare(password,user.password,(err,check)=>{
                     if(check){
+                        //si viene un token devolver token si no devolver datos del usuario
+                        if(params.gettoken){
+                            //generar y devolver token
+                            return res.status(200).send({
+                                token:jwt.createToken(user)
+                            });
+                        }else{
+                    //eliminar la password por seguridad
+                        user.password=undefined;
                         //devolver datos de usuario
                       return  res.status(200).send({user});
+                        }
+
+                        
 
                     }else{
                       return  res.status(404).send({message:'El usuario no se ha podido logear'});
