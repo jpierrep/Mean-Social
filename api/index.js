@@ -1,5 +1,5 @@
 'use strict'
-
+//index js para hacer las conexiones y la creacion del servidor
 var mongoose=require('mongoose');
 var app=require('./app');
 var port= 3800;
