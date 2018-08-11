@@ -1,6 +1,6 @@
 ﻿'use strict'
 var bcrypt=require('bcrypt-nodejs');
-
+var mongoosePaginate=require('mongoose-pagination');
 var User= require('../models/user');
 var jwt=require('../services/jwt');
 
@@ -131,8 +131,56 @@ function home (req,res){
       return res.status(200).send({user});
        });
      }
+
+     //Devolver un listado de usuarios paginados
+     function getUsers(req,res){
+         //recoger el id del usario logeado en el momento
+         // en el middelware de usuario hemos seteado una propiedad a la request
+        var identity_user_id=req.user.sub; //sub ha sido el nombre que le hemos seteado en el token al id del usuario
+        var page=1;
+        if(req.params.page){
+            //gracias al paquete de paginacion de mongoose
+            page=req.params.page;
+        }
+        //cantidad de items por pagina
+        //luego se consulta por el numero de pagina
+        var itemsPerPage=2;
+        //find solo trae todo lo de la bd,paginate realiza un count y lo entrega en total
+        User.find().sort('_id').paginate(page,itemsPerPage,(err,users,total)=>{
+            if (err) return res.status(500).send({message:"Error en la peticion"});
+            if (!users) return res.status(404).send({message:"No hay usuarios disponibles"});
+            return res.status(200).send({
+               //devuelve coleccion de usuarios y total junto a las paginas
+                users,
+                total,
+                pages:Math.ceil(total/itemsPerPage) //redondea
+            })
+        });
+     }
+
+     //actualizar un usuario
+     function updateUser(req,res){
+        //llegara por la url el id del usuario
+        //cuando llega por url utilizamos params cuando nos llegan por post o put utilizamos body
+       var userId=req.params.id;
+       var update=req.body;
+       //borrar la propiedad password por seguridad
+       delete update.password;
+       //utilizaremos este metodo solo cuando el propietario de la cuenta quiera cambiar sus datos
+       if(userId!=req.user.sub)  return res.status(500).send({message:'No tienes permisos para actualizar los datos del usuario'});
+       User.findByIdAndUpdate(userId,update,{new:true},(err,userUpdated)=>{
+        if(err) return res.status(500).send({message:'Error en la peticion'});
+        if(!userUpdated) return res.status(404).send({message:'Error, No se ha podido actualizar el usuario' });
+        //el user updated que devuelve es el original no el actualizado,es por eso que pasamos como parametro {new:true} para que devuelva el actualizado
+        return res.status(200).send({user:userUpdated});
+
+       });
+
+    }
+
+
     
          
          module.exports={
-             home,pruebas,saveUser,loginUser,getUser
+             home,pruebas,saveUser,loginUser,getUser,getUsers,updateUser
          }
