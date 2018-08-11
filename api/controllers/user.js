@@ -236,8 +236,19 @@ function home (req,res){
           return res.status(200).send({message:message_print});
       });
      }
+
+     function getImageFile(req,res){
+        var image_file=req.params.imageFile;
+        var path_file='./uploads/users/'+image_file;
+        console.log(path_file);
+        fs.exists(path_file,(exists)=>{
+            if(exists) res.sendFile(path.resolve(path_file)); //metodo de express para fresponder con ficheros
+            else res.status(200).send({message:'No existe la imagen'});
+        })
+
+     }
          
          module.exports={
              home,pruebas,saveUser,loginUser,getUser
-             ,getUsers,updateUser,uploadImage
+             ,getUsers,updateUser,uploadImage,getImageFile
          }

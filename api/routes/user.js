@@ -21,6 +21,7 @@ api.put('/update-user/:id',md_auth.ensureAuth,UserController.updateUser);
 
 //si queremos pasar varios middelwares tenemos que pasarle un arreglo
 api.post('/upload-image-user/:id',[md_auth.ensureAuth,md_upload],UserController.uploadImage);//utilizamos middelware de subidas 
+api.get('/get-image-user/:imageFile',UserController.getImageFile);//utilizamos middelware de subidas 
 
 
 module.exports=api;
