@@ -1,4 +1,4 @@
-'use strict'
+﻿'use strict'
 var bcrypt=require('bcrypt-nodejs');
 
 var User= require('../models/user');
@@ -118,7 +118,21 @@ function home (req,res){
 
          }
     
+             //COonseguir datos de un usuario    
+
+     function getUser(req,res){
+         //llegara por la url el id del usuario
+         //cuando llega por url utilizamos params cuando nos llegan por post o put utilizamos body
+        var userId=req.params.id;
+      User.findById(userId,(err,user)=>{
+           if(err) return res.status(500).send({message:'Error en la peticion'});
+           if(!user) return res.status(404).send({message:'Error, el usuario no existe'});
+      
+      return res.status(200).send({user});
+       });
+     }
+    
          
          module.exports={
-             home,pruebas,saveUser,loginUser
+             home,pruebas,saveUser,loginUser,getUser
          }

@@ -11,4 +11,6 @@ api.get('/home',UserController.home);
 api.get('/pruebas',md_auth.ensureAuth,UserController.pruebas);
 api.post('/register',UserController.saveUser);
 api.post('/login',UserController.loginUser);
+//si quisieramos hacer el parametro opcional hay que añadir un ? al final
+api.get('/user/:id',md_auth.ensureAuth,UserController.getUser);
 module.exports=api;
