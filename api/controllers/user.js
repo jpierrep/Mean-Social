@@ -1,8 +1,15 @@
 ﻿'use strict'
+//encriptador
 var bcrypt=require('bcrypt-nodejs');
+//paginacion de mongoose
 var mongoosePaginate=require('mongoose-pagination');
 var User= require('../models/user');
+//uso de tokens
 var jwt=require('../services/jwt');
+//uso de ficheros
+var fs=require('fs');
+//rutas de ficheros
+var path=require('path');
 
 function home (req,res){
     res.status(200).send({
@@ -179,8 +186,58 @@ function home (req,res){
     }
 
 
-    
+
+     //subir archivos de usuario avatar
+
+     function uploadImage(req,res){
+
+     var userId=req.params.id;
+     
+        //request trae archivos si es que son subidos
+      if(req.files){
+          //campo path del campo imagen enviado por post
+        var file_path=req.files.image.path;
+        //obtneemos el nombre del archivo
+        var file_split=file_path.split('\\');
+        console.log(file_split);
+        //[ 'uploads', 'users', 'LmkbKFCxtEqb4Ij6eeppHipB.jpg' ]
+        //en la posicion 2 entrega el nombre del archivo
+        var file_name=file_split[2]
+        //extencion del archivo
+        var ext_split=file_name.split('\.');
+        var file_ext=ext_split[1];
+        //comprobar que las extenciones son correctas
+//puede subir usuarios solamente el dueño de la cuenta
+        if(userId!=req.user.sub){
+         return   removeFilesOfUploads(res,file_path,"No tienes permisos para subir imagenes a este usuario"); //lleva return para no mandar respuestas seguidas y nos de error no se pueden enviar varias cabeceras a la vez seeccion 5 clase 27
+        }
+        if(  file_ext=='png'||file_ext=='jpg'||file_ext=='jpeg'||file_ext=='gif'){
+           //Actualizar documento de usuario logeado
+            User.findByIdAndUpdate(userId,{image:file_name},{new:true},(err,userUpdated)=>{
+                if(err) return res.status(500).send({message:'Error en la peticion'});
+                if(!userUpdated) return res.status(404).send({message:'Error, No se ha podido actualizar el usuario' });
+                //el user updated que devuelve es el original no el actualizado,es por eso que pasamos como parametro {new:true} para que devuelva el actualizado
+                return res.status(200).send({user:userUpdated});
+            });
+
+        }else{
+        return  removeFilesOfUploads(res,file_path,"error en la extencion"); //lleva return para no mandar respuestas seguidas y nos de error no se pueden enviar varias cabeceras a la vez
+
+        }
+    }else{
+          return res.status(200).send({message:'No se han subido archivos'});
+      }
+
+     }
+   function  removeFilesOfUploads(res, file_path,message_print){
+      //si no es correcto, se elimina el archivo subido, pues la libreria lo sube de todas maneras
+      fs.unlink(file_path,(err)=>{
+        //hay error
+          return res.status(200).send({message:message_print});
+      });
+     }
          
          module.exports={
-             home,pruebas,saveUser,loginUser,getUser,getUsers,updateUser
+             home,pruebas,saveUser,loginUser,getUser
+             ,getUsers,updateUser,uploadImage
          }
