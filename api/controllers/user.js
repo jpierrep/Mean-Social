@@ -4,6 +4,7 @@ var bcrypt=require('bcrypt-nodejs');
 //paginacion de mongoose
 var mongoosePaginate=require('mongoose-pagination');
 var User= require('../models/user');
+var Follow= require('../models/follow');
 //uso de tokens
 var jwt=require('../services/jwt');
 //uso de ficheros
@@ -134,8 +135,12 @@ function home (req,res){
       User.findById(userId,(err,user)=>{
            if(err) return res.status(500).send({message:'Error en la peticion'});
            if(!user) return res.status(404).send({message:'Error, el usuario no existe'});
-      
-      return res.status(200).send({user});
+      //comprobar si seguimos al usuario que nos llega por la url
+           Follow.findOne({'user':req.user.sub,'followed':userId}).exec((err,follow)=>{
+            if(err) return res.status(500).send({message:'Error al comprobar el seguimiento'})  
+            return res.status(200).send({user,follow});
+           });
+    //  return res.status(200).send({user});
        });
      }
 

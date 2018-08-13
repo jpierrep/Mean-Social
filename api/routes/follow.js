@@ -13,6 +13,8 @@ api.post('/follow',md_auth.ensureAuth,FollowController.saveFollow);
 api.delete('/follow/:id',md_auth.ensureAuth,FollowController.deleteFollow);
 //http://localhost:3800/api/following/5b6fbb532fa8408b3ca1c1d8/1 pasando el token Authorization en el header
 api.get('/following/:id?/:page?',md_auth.ensureAuth,FollowController.getFollowingUsers);
+api.get('/followed/:id?/:page?',md_auth.ensureAuth,FollowController.getFollowingUsers);
+api.get('/get-my-follows/:followed?/',md_auth.ensureAuth,FollowController.getMyFollows);
 
 module.exports=api;
 
