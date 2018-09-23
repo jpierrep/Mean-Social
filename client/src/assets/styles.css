@@ -29,3 +29,12 @@ border:none;
 
 
 }
+
+.active{
+   /* border-bottom: 3px solid yellow; */
+    background: #cc1717;
+}
+
+.navigation .navbar a:hover{
+    background: #cc1717 !important;
+}
